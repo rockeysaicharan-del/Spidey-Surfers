@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Spidey Surfers 3D</title>
+    <title>Spidey Surfers 3D - Rooftop Run</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background: #090d16;
+            background: #070b19;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             touch-action: none;
         }
@@ -28,7 +28,7 @@
         }
         .pill {
             background: rgba(15, 23, 42, 0.85);
-            border: 1.5px solid rgba(56, 189, 248, 0.4);
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
             backdrop-filter: blur(8px);
             padding: 8px 14px;
             border-radius: 999px;
@@ -127,23 +127,24 @@
         #skin-modal {
             position: absolute;
             inset: 0;
-            background: rgba(6, 10, 22, 0.94);
+            background: rgba(6, 10, 22, 0.96);
             backdrop-filter: blur(12px);
             z-index: 40;
             display: none;
             flex-direction: column;
-            padding: 20px;
+            padding: 18px 16px;
             color: white;
         }
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
+            flex-shrink: 0;
         }
         .modal-header h2 {
             margin: 0;
-            font-size: 1.35rem;
+            font-size: 1.25rem;
             color: #38bdf8;
         }
         #close-skins-btn {
@@ -161,49 +162,66 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            padding-bottom: 20px;
+            padding-top: 4px;
+            padding-bottom: 24px;
         }
         .skin-card {
             background: #111827;
             border: 2px solid #1f2937;
-            border-radius: 14px;
-            padding: 14px;
+            border-radius: 16px;
+            padding: 12px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
+            flex-shrink: 0;
         }
         .skin-card.equipped {
             border-color: #38bdf8;
             background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.25);
         }
-        .swatch {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+        .mask-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: #090d16;
+            border: 1.5px solid rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex-shrink: 0;
-            border: 2px solid rgba(255,255,255,0.2);
+            padding: 4px;
+        }
+        .mask-box svg {
+            width: 100%;
+            height: 100%;
         }
         .skin-info {
             flex: 1;
+            min-width: 0;
         }
         .skin-info h3 {
             margin: 0 0 4px;
-            font-size: 1rem;
+            font-size: 0.98rem;
+            line-height: 1.25;
+            color: #f8fafc;
         }
         .skin-info p {
             margin: 0;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
+            line-height: 1.35;
             color: #9ca3af;
         }
         .skin-btn {
-            padding: 10px 14px;
+            padding: 10px 12px;
             border-radius: 10px;
             border: none;
             font-weight: 800;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             cursor: pointer;
-            min-width: 92px;
+            min-width: 88px;
+            flex-shrink: 0;
         }
         .skin-btn.equip { background: #10b981; color: #fff; }
         .skin-btn.equipped-tag { background: #38bdf8; color: #0f172a; }
@@ -270,7 +288,7 @@
     <div id="start-overlay">
         <div class="title-wrap">
             <h1>SPIDEY SURFERS</h1>
-            <p>NYC Subway Escape</p>
+            <p>NYC Rooftop Chase</p>
         </div>
 
         <button id="tap-to-start">TAP TO START</button>
@@ -283,11 +301,11 @@
     <!-- Skins Wardrobe Modal -->
     <div id="skin-modal">
         <div class="modal-header">
-            <h2>🕷️ SPIDER-SUITS</h2>
+            <h2>🕷️ SPIDER-MASKS</h2>
             <div class="pill"><span class="coin-dot"></span> <span id="modal-coin-val">0</span></div>
             <button id="close-skins-btn">DONE</button>
         </div>
-        <p style="font-size:0.8rem; color:#94a3b8; margin:0 0 12px;">
+        <p style="font-size:0.78rem; color:#94a3b8; margin:0 0 10px; flex-shrink:0;">
             1 Pickup Coin = 0.5 Value (Collect 2 coins = 1 Full Coin)
         </p>
         <div class="skin-list" id="skin-list"></div>
@@ -310,88 +328,111 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        // --- SKIN DEFINITIONS (Matching User's Reference Image) ---
+        // --- CUSTOM SVG SPIDER-MAN MASK ICONS ---
+        function getMaskSVG(type) {
+            if (type === '2002') {
+                // 2002 Homemade Ski-Mask
+                return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 8 C26 8 18 28 20 55 C22 78 34 92 50 92 C66 92 78 78 80 55 C82 28 74 8 50 8 Z" fill="#dc2626" stroke="#991b1b" stroke-width="3"/>
+                    <path d="M24 38 Q50 43 76 38" stroke="#991b1b" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+                    <path d="M22 64 Q50 68 78 64" stroke="#991b1b" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+                    <ellipse cx="36" cy="48" rx="9" ry="6" fill="#fecaca" stroke="#7f1d1d" stroke-width="2.5"/>
+                    <ellipse cx="64" cy="48" rx="9" ry="6" fill="#fecaca" stroke="#7f1d1d" stroke-width="2.5"/>
+                </svg>`;
+            }
+            if (type === '2004') {
+                // 2004 Classic Raimi Mask (Silver Webbing & Sharp Triangular Lenses)
+                return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 8 C26 8 18 28 20 55 C22 78 34 92 50 92 C66 92 78 78 80 55 C82 28 74 8 50 8 Z" fill="#b91c1c"/>
+                    <g stroke="#cbd5e1" stroke-width="1.6" fill="none" opacity="0.85">
+                        <line x1="50" y1="8" x2="50" y2="92"/>
+                        <line x1="25" y1="22" x2="75" y2="78"/>
+                        <line x1="75" y1="22" x2="25" y2="78"/>
+                        <ellipse cx="50" cy="50" rx="18" ry="26"/>
+                        <ellipse cx="50" cy="50" rx="28" ry="38"/>
+                    </g>
+                    <path d="M25 42 L45 52 L32 60 Z" fill="#f8fafc" stroke="#1e293b" stroke-width="3" stroke-linejoin="round"/>
+                    <path d="M75 42 L55 52 L68 60 Z" fill="#f8fafc" stroke="#1e293b" stroke-width="3" stroke-linejoin="round"/>
+                </svg>`;
+            }
+            if (type === '2007') {
+                // 2007 Symbiote Black Mask
+                return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 8 C26 8 18 28 20 55 C22 78 34 92 50 92 C66 92 78 78 80 55 C82 28 74 8 50 8 Z" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+                    <g stroke="#64748b" stroke-width="1.5" fill="none" opacity="0.75">
+                        <line x1="50" y1="8" x2="50" y2="92"/>
+                        <line x1="25" y1="22" x2="75" y2="78"/>
+                        <line x1="75" y1="22" x2="25" y2="78"/>
+                        <ellipse cx="50" cy="50" rx="20" ry="28"/>
+                    </g>
+                    <path d="M24 40 L45 52 L31 61 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2.5" stroke-linejoin="round"/>
+                    <path d="M76 40 L55 52 L69 61 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2.5" stroke-linejoin="round"/>
+                </svg>`;
+            }
+            if (type === '2016') {
+                // 2016 Stark Tech Mask (Expressive Thick Black-Rimmed Lenses)
+                return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 8 C26 8 18 28 20 55 C22 78 34 92 50 92 C66 92 78 78 80 55 C82 28 74 8 50 8 Z" fill="#ef4444"/>
+                    <g stroke="#111827" stroke-width="1.5" fill="none" opacity="0.65">
+                        <line x1="50" y1="8" x2="50" y2="92"/>
+                        <line x1="26" y1="20" x2="74" y2="80"/>
+                        <line x1="74" y1="20" x2="26" y2="80"/>
+                        <circle cx="50" cy="50" r="22"/>
+                    </g>
+                    <path d="M24 41 C32 39 43 45 45 53 C39 58 29 58 24 41 Z" fill="#ffffff" stroke="#090d16" stroke-width="4.5" stroke-linejoin="round"/>
+                    <path d="M76 41 C68 39 57 45 55 53 C61 58 71 58 76 41 Z" fill="#ffffff" stroke="#090d16" stroke-width="4.5" stroke-linejoin="round"/>
+                </svg>`;
+            }
+            // 2018-2019 Iron Spider Mask (Gold Trim & Glowing Cyan Lenses)
+            return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 8 C26 8 18 28 20 55 C22 78 34 92 50 92 C66 92 78 78 80 55 C82 28 74 8 50 8 Z" fill="#991b1b" stroke="#fbbf24" stroke-width="2.5"/>
+                <g stroke="#f59e0b" stroke-width="2" fill="none">
+                    <line x1="50" y1="8" x2="50" y2="38"/>
+                    <path d="M32 16 L44 38"/>
+                    <path d="M68 16 L56 38"/>
+                    <path d="M24 66 L42 60 L58 60 L76 66"/>
+                </g>
+                <path d="M24 41 L45 51 L31 60 Z" fill="#38bdf8" stroke="#fbbf24" stroke-width="2.5" stroke-linejoin="round"/>
+                <path d="M76 41 L55 51 L69 60 Z" fill="#38bdf8" stroke="#fbbf24" stroke-width="2.5" stroke-linejoin="round"/>
+            </svg>`;
+        }
+
+        // --- SKIN DEFINITIONS ---
         const SKINS = [
             {
                 id: '2002',
                 name: '2002 Human Spider',
                 desc: 'Default homemade red hoodie, blue pants & ski mask',
                 cost: 0,
-                swatch: 'linear-gradient(135deg, #ef4444 60%, #1d4ed8 60%)',
-                colors: {
-                    torso: 0xdc2626,
-                    arms: 0xdc2626,
-                    legs: 0x1e40af,
-                    head: 0xdc2626,
-                    eyes: 0xfef2f2,
-                    accent: 0x111827, // Black spider emblem
-                    webbing: false
-                }
+                colors: { torso: 0xdc2626, arms: 0xdc2626, legs: 0x1e40af, head: 0xdc2626, eyes: 0xfef2f2, accent: 0x111827 }
             },
             {
                 id: '2004',
                 name: '2004 Classic Suit',
                 desc: 'Crimson & deep navy suit with silver raised webbing',
                 cost: 100,
-                swatch: 'linear-gradient(135deg, #b91c1c 55%, #1e3a8a 55%)',
-                colors: {
-                    torso: 0xb91c1c,
-                    arms: 0xb91c1c,
-                    legs: 0x1e3a8a,
-                    head: 0xb91c1c,
-                    eyes: 0xe2e8f0,
-                    accent: 0x94a3b8, // Silver webbing
-                    webbing: true
-                }
+                colors: { torso: 0xb91c1c, arms: 0xb91c1c, legs: 0x1e3a8a, head: 0xb91c1c, eyes: 0xe2e8f0, accent: 0x94a3b8 }
             },
             {
                 id: '2007',
                 name: '2007 Symbiote Suit',
                 desc: 'Alien black suit with metallic silver spider & eyes',
                 cost: 200,
-                swatch: 'linear-gradient(135deg, #090d16 65%, #64748b 65%)',
-                colors: {
-                    torso: 0x0f172a,
-                    arms: 0x0f172a,
-                    legs: 0x090d16,
-                    head: 0x0f172a,
-                    eyes: 0xf1f5f9,
-                    accent: 0xcbd5e1, // Silver emblem
-                    webbing: true
-                }
+                colors: { torso: 0x0f172a, arms: 0x0f172a, legs: 0x090d16, head: 0x0f172a, eyes: 0xf1f5f9, accent: 0xcbd5e1 }
             },
             {
                 id: '2016',
                 name: '2016 Stark Tech Suit',
                 desc: 'Bright red & blue with black bands & web-shooters',
                 cost: 500,
-                swatch: 'linear-gradient(135deg, #ef4444 50%, #2563eb 50%)',
-                colors: {
-                    torso: 0xef4444,
-                    arms: 0x2563eb,
-                    legs: 0x2563eb,
-                    head: 0xef4444,
-                    eyes: 0xffffff,
-                    accent: 0x090d16, // Black shoulder/wrist bands
-                    webbing: false
-                }
+                colors: { torso: 0xef4444, arms: 0x2563eb, legs: 0x2563eb, head: 0xef4444, eyes: 0xffffff, accent: 0x090d16 }
             },
             {
                 id: '2018-2019',
                 name: '2018-2019 Iron Spider',
                 desc: 'Metallic red, navy & gold armor with glowing cyan eyes',
                 cost: 1000,
-                swatch: 'linear-gradient(135deg, #991b1b 45%, #f59e0b 50%, #1e3a8a 55%)',
-                colors: {
-                    torso: 0x991b1b,
-                    arms: 0x991b1b,
-                    legs: 0x1e3a8a,
-                    head: 0x991b1b,
-                    eyes: 0x38bdf8, // Glowing cyan lenses
-                    accent: 0xfbbf24, // Gold armor trim
-                    webbing: false,
-                    metallic: true
-                }
+                colors: { torso: 0x991b1b, arms: 0x991b1b, legs: 0x1e3a8a, head: 0x991b1b, eyes: 0x38bdf8, accent: 0xfbbf24, metallic: true }
             }
         ];
 
@@ -424,7 +465,7 @@
         let isRolling = false, rollTimer = 0;
         const gravity = -0.018;
 
-        let gameState = 'MENU'; // MENU, PLAYING, GAMEOVER
+        let gameState = 'MENU';
         let score = 0;
         let runCoinsEarned = 0;
         let speed = 0.36;
@@ -435,10 +476,10 @@
         // --- INIT 3D WORLD ---
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0b132b);
-            scene.fog = new THREE.FogExp2(0x0b132b, 0.018);
+            scene.background = new THREE.Color(0x0c142c);
+            scene.fog = new THREE.FogExp2(0x0c142c, 0.016);
 
-            camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 200);
+            camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 220);
             camera.position.set(0, 4.2, 6.8);
             camera.lookAt(0, 1.3, -6);
 
@@ -448,16 +489,15 @@
             renderer.shadowMap.enabled = true;
             document.body.appendChild(renderer.domElement);
 
-            // Realistic Three-Point / City Lighting
-            const hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x1e293b, 0.9);
+            const hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x1e293b, 0.95);
             scene.add(hemiLight);
 
-            const dirLight = new THREE.DirectionalLight(0xfffbeb, 1.1);
-            dirLight.position.set(8, 18, 10);
+            const dirLight = new THREE.DirectionalLight(0xfef3c7, 1.15);
+            dirLight.position.set(10, 22, 12);
             dirLight.castShadow = true;
             scene.add(dirLight);
 
-            buildSubwayEnvironment();
+            buildRooftopEnvironment();
 
             spideyRig = createCharacterRig(true);
             spideyRig.group.position.set(0, 0, 0);
@@ -475,66 +515,72 @@
             window.addEventListener('resize', onResize);
         }
 
-        // --- REALISTIC SUBWAY TRACKS & NYC BUILDINGS ---
-        function buildSubwayEnvironment() {
-            // Gravel Track Bed
-            const bedGeo = new THREE.PlaneGeometry(11, 300);
-            const bedMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.95 });
-            const bed = new THREE.Mesh(bedGeo, bedMat);
-            bed.rotation.x = -Math.PI / 2;
-            bed.position.z = -120;
-            bed.receiveShadow = true;
-            scene.add(bed);
+        // --- NYC ROOFTOP DECK & SURROUNDING SKYSCRAPERS ---
+        function buildRooftopEnvironment() {
+            const roofGeo = new THREE.PlaneGeometry(9.6, 300);
+            const roofMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 });
+            const roof = new THREE.Mesh(roofGeo, roofMat);
+            roof.rotation.x = -Math.PI / 2;
+            roof.position.z = -120;
+            roof.receiveShadow = true;
+            scene.add(roof);
 
-            // Side Concrete Platforms
-            const platGeo = new THREE.BoxGeometry(4, 1.2, 300);
-            const platMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85 });
-            const leftPlat = new THREE.Mesh(platGeo, platMat);
-            leftPlat.position.set(-7.5, 0.6, -120);
-            scene.add(leftPlat);
+            const wallGeo = new THREE.BoxGeometry(0.65, 0.85, 300);
+            const wallMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.8 });
+            
+            const leftWall = new THREE.Mesh(wallGeo, wallMat);
+            leftWall.position.set(-5.0, 0.42, -120);
+            scene.add(leftWall);
 
-            const rightPlat = new THREE.Mesh(platGeo, platMat);
-            rightPlat.position.set(7.5, 0.6, -120);
-            scene.add(rightPlat);
+            const rightWall = new THREE.Mesh(wallGeo, wallMat);
+            rightWall.position.set(5.0, 0.42, -120);
+            scene.add(rightWall);
 
-            // Steel Rails for 3 Lanes
-            const railMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.25 });
-            laneX.forEach(lx => {
-                [-0.65, 0.65].forEach(offset => {
-                    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.14, 300), railMat);
-                    rail.position.set(lx + offset, 0.07, -120);
-                    scene.add(rail);
+            const jointMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.95 });
+            const laneGuideMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.35 });
+
+            for (let z = 15; z > -220; z -= 6) {
+                const stripGroup = new THREE.Group();
+                const seam = new THREE.Mesh(new THREE.BoxGeometry(9.2, 0.03, 0.25), jointMat);
+                seam.position.y = 0.015;
+                stripGroup.add(seam);
+
+                [-1.3, 1.3].forEach(lx => {
+                    const mark = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.04, 1.5), laneGuideMat);
+                    mark.position.set(lx, 0.02, 0);
+                    stripGroup.add(mark);
                 });
-            });
 
-            // Scrolling Wooden Ties & City Buildings
-            const tieMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 });
-            for (let z = 15; z > -220; z -= 2.2) {
-                const tieGroup = new THREE.Group();
-                laneX.forEach(lx => {
-                    const tie = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.06, 0.35), tieMat);
-                    tie.position.set(lx, 0.03, 0);
-                    tieGroup.add(tie);
-                });
-                tieGroup.position.z = z;
-                scene.add(tieGroup);
-                envProps.push({ mesh: tieGroup, resetZ: -220 });
+                stripGroup.position.z = z;
+                scene.add(stripGroup);
+                envProps.push({ mesh: stripGroup, resetZ: -220 });
             }
 
-            // NYC Buildings along sides
-            const bColors = [0x0f172a, 0x1e1b4b, 0x172554, 0x1e293b];
-            for (let z = 10; z > -220; z -= 14) {
-                [-11.5, 11.5].forEach(bx => {
-                    const h = 14 + Math.random() * 18;
-                    const bGeo = new THREE.BoxGeometry(7, h, 11);
+            const towerColors = [0x0f172a, 0x1e1b4b, 0x172554, 0x1e293b];
+            const windowMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
+
+            for (let z = 10; z > -220; z -= 16) {
+                [-13.5, 13.5].forEach(bx => {
+                    const towerGroup = new THREE.Group();
+                    const h = 24 + Math.random() * 20;
+                    const bGeo = new THREE.BoxGeometry(9, h, 12);
                     const bMat = new THREE.MeshStandardMaterial({
-                        color: bColors[Math.floor(Math.random() * bColors.length)],
+                        color: towerColors[Math.floor(Math.random() * towerColors.length)],
                         roughness: 0.7
                     });
                     const bldg = new THREE.Mesh(bGeo, bMat);
-                    bldg.position.set(bx, h / 2, z);
-                    scene.add(bldg);
-                    envProps.push({ mesh: bldg, resetZ: -220 });
+                    bldg.position.y = (h / 2) - 10;
+                    towerGroup.add(bldg);
+
+                    for (let wy = -4; wy < h - 13; wy += 3.5) {
+                        const win = new THREE.Mesh(new THREE.BoxGeometry(9.1, 0.8, 1.5), windowMat);
+                        win.position.set(0, wy, (Math.random() - 0.5) * 6);
+                        towerGroup.add(win);
+                    }
+
+                    towerGroup.position.set(bx, 0, z);
+                    scene.add(towerGroup);
+                    envProps.push({ mesh: towerGroup, resetZ: -220 });
                 });
             }
         }
@@ -550,24 +596,20 @@
             const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
             const accentMat = new THREE.MeshStandardMaterial({ color: 0x111827, metalness: 0.5, roughness: 0.3 });
 
-            // Torso
             const torso = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.95, 0.42), torsoMat);
             torso.position.y = 1.25;
             torso.castShadow = true;
             group.add(torso);
 
-            // Chest Emblem / Gold Armor Plate
             const emblem = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.45), accentMat);
             emblem.position.set(0, 1.32, 0);
             group.add(emblem);
 
-            // Head
             const head = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.55, 0.52), headMat);
             head.position.y = 2.02;
             head.castShadow = true;
             group.add(head);
 
-            // Eyes (Facing forward -Z)
             const leftEye = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.1, 0.05), eyeMat);
             leftEye.position.set(-0.13, 2.04, -0.26);
             leftEye.rotation.z = 0.25;
@@ -578,14 +620,12 @@
             rightEye.rotation.z = -0.25;
             group.add(rightEye);
 
-            // Venom White Tendrils & Jaw
             if (!isSpiderMan) {
                 const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.16, 0.54), new THREE.MeshBasicMaterial({ color: 0xf8fafc }));
                 jaw.position.set(0, 1.85, -0.02);
                 group.add(jaw);
             }
 
-            // Articulated Pivots for Arms & Legs
             const leftArmPivot = new THREE.Group();
             leftArmPivot.position.set(-0.52, 1.65, 0);
             const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.8, 0.24), armMat);
@@ -644,7 +684,7 @@
             spideyRig.accentMat.color.setHex(c.accent);
         }
 
-        // --- SKIN SHOP UI ---
+        // --- SKIN SHOP UI WITH SPIDER-MAN MASKS ---
         function renderSkinShop() {
             const list = document.getElementById('skin-list');
             list.innerHTML = '';
@@ -668,7 +708,7 @@
                 }
 
                 card.innerHTML = `
-                    <div class="swatch" style="background:${skin.swatch}"></div>
+                    <div class="mask-box">${getMaskSVG(skin.id)}</div>
                     <div class="skin-info">
                         <h3>${skin.name}</h3>
                         <p>${skin.desc}</p>
@@ -698,7 +738,7 @@
             renderSkinShop();
         };
 
-        // --- OBSTACLES & COINS (SUBWAY TRAINS, BARRIERS, HALF-VALUE COINS) ---
+        // --- OBSTACLES (3D BRICK CHIMNEYS & ROOF VENTS) & HALF-VALUE COINS ---
         function spawnWave() {
             const zPos = -110;
             const pattern = Math.floor(Math.random() * 3);
@@ -706,71 +746,83 @@
 
             for (let l = 0; l < 3; l++) {
                 if (l === openLane) {
-                    // Line of 4 Gold Coins in safe lane (each worth 0.5)
                     for (let c = 0; c < 4; c++) {
                         spawnCoin(laneX[l], 0.85, zPos - c * 2.6);
                     }
                 } else if (pattern === 0) {
-                    // Full Subway Train Car
-                    spawnTrain(laneX[l], zPos);
+                    spawnChimney(laneX[l], zPos);
                 } else if (pattern === 1) {
-                    // Low Hurdle Barrier (Jump over)
-                    spawnBarrier(laneX[l], zPos, false);
+                    spawnRoofVent(laneX[l], zPos, false);
                 } else {
-                    // High Overhead Barrier (Slide/Roll under)
-                    spawnBarrier(laneX[l], zPos, true);
+                    spawnRoofVent(laneX[l], zPos, true);
                 }
             }
         }
 
-        function spawnTrain(x, z) {
-            const trainGroup = new THREE.Group();
-            const body = new THREE.Mesh(
-                new THREE.BoxGeometry(2.0, 2.7, 11),
-                new THREE.MeshStandardMaterial({ color: 0x1d4ed8, metalness: 0.4, roughness: 0.3 })
-            );
-            body.position.y = 1.35;
-            trainGroup.add(body);
+        function spawnChimney(x, z) {
+            const chimneyGroup = new THREE.Group();
+            const brickMat = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.85 });
+            const capMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.5, roughness: 0.4 });
+            const pipeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.7, roughness: 0.3 });
 
-            const stripe = new THREE.Mesh(
-                new THREE.BoxGeometry(2.04, 0.35, 11.04),
-                new THREE.MeshBasicMaterial({ color: 0xfacc15 })
-            );
-            stripe.position.y = 1.4;
-            trainGroup.add(stripe);
+            const stack = new THREE.Mesh(new THREE.BoxGeometry(1.75, 2.8, 1.75), brickMat);
+            stack.position.y = 1.4;
+            stack.castShadow = true;
+            chimneyGroup.add(stack);
 
-            const windshield = new THREE.Mesh(
-                new THREE.BoxGeometry(1.7, 0.8, 0.1),
-                new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
-            );
-            windshield.position.set(0, 1.9, 5.51);
-            trainGroup.add(windshield);
+            const rim = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.28, 2.0), capMat);
+            rim.position.y = 2.85;
+            chimneyGroup.add(rim);
 
-            trainGroup.position.set(x, 0, z);
-            scene.add(trainGroup);
-            obstacles.push({ mesh: trainGroup, type: 'TRAIN', halfZ: 5.5 });
+            [-0.4, 0.4].forEach(px => {
+                const flue = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.65, 14), pipeMat);
+                flue.position.set(px, 3.25, 0);
+                chimneyGroup.add(flue);
+            });
+
+            const smoke = new THREE.Mesh(
+                new THREE.SphereGeometry(0.45, 10, 10),
+                new THREE.MeshBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.45 })
+            );
+            smoke.position.set(0, 3.9, 0);
+            chimneyGroup.add(smoke);
+
+            chimneyGroup.position.set(x, 0, z);
+            scene.add(chimneyGroup);
+            obstacles.push({ mesh: chimneyGroup, type: 'CHIMNEY', halfZ: 0.95, smoke });
         }
 
-        function spawnBarrier(x, z, isHigh) {
-            const barrierGroup = new THREE.Group();
-            const barMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
-            const postMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.6 });
+        function spawnRoofVent(x, z, isHigh) {
+            const ventGroup = new THREE.Group();
+            const metalMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.6, roughness: 0.35 });
+            const hazardMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
 
-            const leftPost = new THREE.Mesh(new THREE.BoxGeometry(0.15, isHigh ? 2.6 : 1.1, 0.15), postMat);
-            leftPost.position.set(-0.85, isHigh ? 1.3 : 0.55, 0);
-            barrierGroup.add(leftPost);
+            if (!isHigh) {
+                const acBox = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.95, 1.2), metalMat);
+                acBox.position.y = 0.48;
+                ventGroup.add(acBox);
 
-            const rightPost = new THREE.Mesh(new THREE.BoxGeometry(0.15, isHigh ? 2.6 : 1.1, 0.15), postMat);
-            rightPost.position.set(0.85, isHigh ? 1.3 : 0.55, 0);
-            barrierGroup.add(rightPost);
+                const fanGrate = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.08, 16), hazardMat);
+                fanGrate.position.y = 0.98;
+                ventGroup.add(fanGrate);
+            } else {
+                const leftPillar = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.6, 0.18), metalMat);
+                leftPillar.position.set(-0.88, 1.3, 0);
+                ventGroup.add(leftPillar);
 
-            const board = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.55, 0.2), barMat);
-            board.position.set(0, isHigh ? 2.05 : 0.75, 0);
-            barrierGroup.add(board);
+                const rightPillar = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.6, 0.18), metalMat);
+                rightPillar.position.set(0.88, 1.3, 0);
+                ventGroup.add(rightPillar);
 
-            barrierGroup.position.set(x, 0, z);
-            scene.add(barrierGroup);
-            obstacles.push({ mesh: barrierGroup, type: isHigh ? 'HIGH' : 'LOW', halfZ: 0.4 });
+                const duct = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 1.95, 16), hazardMat);
+                duct.rotation.z = Math.PI / 2;
+                duct.position.set(0, 2.05, 0);
+                ventGroup.add(duct);
+            }
+
+            ventGroup.position.set(x, 0, z);
+            scene.add(ventGroup);
+            obstacles.push({ mesh: ventGroup, type: isHigh ? 'HIGH' : 'LOW', halfZ: 0.55 });
         }
 
         function spawnCoin(x, y, z) {
@@ -789,7 +841,7 @@
             coins.push(coin);
         }
 
-        // --- CONTROLS (SWIPE & KEYBOARD) ---
+        // --- CONTROLS ---
         let touchX = 0, touchY = 0;
 
         function triggerJump() {
@@ -805,7 +857,7 @@
             if (!isRolling) {
                 isRolling = true;
                 rollTimer = 34;
-                if (isJumping) jumpVel = -0.35; // Fast slam down
+                if (isJumping) jumpVel = -0.35;
             }
         }
 
@@ -879,7 +931,7 @@
         function handleCrash() {
             gameState = 'GAMEOVER';
             venomRig.group.position.x = spideyRig.group.position.x;
-            venomRig.group.position.z = 0.75; // Venom catches Spidey
+            venomRig.group.position.z = 0.75;
 
             savedCoins += runCoinsEarned;
             saveProgress();
@@ -895,7 +947,6 @@
             requestAnimationFrame(animate);
 
             if (gameState === 'MENU') {
-                // Idle showcase breathing & Venom pacing behind
                 runCycle += 0.05;
                 spideyRig.group.position.y = Math.abs(Math.sin(runCycle)) * 0.06;
                 venomRig.group.position.y = Math.abs(Math.cos(runCycle)) * 0.08;
@@ -906,27 +957,24 @@
                 score += speed * 2.5;
                 document.getElementById('score-val').textContent = Math.floor(score);
 
-                // Scroll Environment Props
                 envProps.forEach(p => {
                     p.mesh.position.z += speed;
                     if (p.mesh.position.z > 20) p.mesh.position.z = p.resetZ;
                 });
 
-                // Spawn Obstacles & Coins
                 spawnTimer += speed;
                 if (spawnTimer > 24) {
                     spawnWave();
                     spawnTimer = 0;
                 }
 
-                // Player Lane & Vertical Physics
                 const targetX = laneX[lane];
                 spideyRig.group.position.x += (targetX - spideyRig.group.position.x) * 0.22;
 
                 if (isJumping) {
                     spideyRig.group.position.y += jumpVel;
                     jumpVel += gravity;
-                    spideyRig.group.rotation.x -= 0.16; // Front flip during jump
+                    spideyRig.group.rotation.x -= 0.16;
                     if (spideyRig.group.position.y <= 0) {
                         spideyRig.group.position.y = 0;
                         spideyRig.group.rotation.x = 0;
@@ -945,7 +993,6 @@
                     }
                 }
 
-                // Running Limb Animation
                 runCycle += speed * 0.85;
                 if (!isJumping) {
                     spideyRig.leftLegPivot.rotation.x = Math.sin(runCycle) * 0.95;
@@ -954,7 +1001,6 @@
                     spideyRig.rightArmPivot.rotation.x = Math.sin(runCycle) * 0.95;
                 }
 
-                // Venom Chase Animation (Slowly drops back slightly as you survive, stays visible)
                 venomDist = Math.min(3.8, venomDist + 0.002);
                 venomRig.group.position.z = venomDist;
                 venomRig.group.position.x += (spideyRig.group.position.x - venomRig.group.position.x) * 0.14;
@@ -968,12 +1014,17 @@
                     const obs = obstacles[i];
                     obs.mesh.position.z += speed;
 
+                    if (obs.smoke) {
+                        obs.smoke.position.y = 3.9 + Math.sin(runCycle * 0.5) * 0.25;
+                        obs.smoke.scale.setScalar(1 + Math.sin(runCycle * 0.4) * 0.15);
+                    }
+
                     const dx = Math.abs(spideyRig.group.position.x - obs.mesh.position.x);
                     const dz = Math.abs(spideyRig.group.position.z - obs.mesh.position.z);
                     const py = spideyRig.group.position.y;
 
                     if (dx < 0.85 && dz < obs.halfZ + 0.25) {
-                        if (obs.type === 'TRAIN' && py < 2.5) {
+                        if (obs.type === 'CHIMNEY' && py < 2.75) {
                             handleCrash();
                         } else if (obs.type === 'LOW' && py < 1.05) {
                             handleCrash();
@@ -988,7 +1039,7 @@
                     }
                 }
 
-                // Update Coins (+0.5 per pickup -> 2 coins = 1.0)
+                // Update Coins (+0.5 per pickup)
                 for (let i = coins.length - 1; i >= 0; i--) {
                     const c = coins[i];
                     c.position.z += speed;
@@ -1010,7 +1061,6 @@
                     }
                 }
 
-                // Dynamic Follow Camera
                 camera.position.x += (spideyRig.group.position.x * 0.45 - camera.position.x) * 0.1;
                 camera.position.y += ((4.3 + spideyRig.group.position.y * 0.4) - camera.position.y) * 0.1;
                 camera.lookAt(spideyRig.group.position.x * 0.3, 1.3, -6);
