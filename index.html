@@ -14,7 +14,6 @@
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             touch-action: none;
         }
-        /* Top HUD */
         #hud {
             position: absolute;
             top: 14px;
@@ -48,7 +47,6 @@
             border: 1.5px solid #ca8a04;
             display: inline-block;
         }
-        /* Cutscene Caption Banner */
         #cutscene-banner {
             position: absolute;
             bottom: 42px;
@@ -68,7 +66,6 @@
             white-space: nowrap;
             box-shadow: 0 6px 24px rgba(0,0,0,0.6);
         }
-        /* Tap to Start Overlay */
         #start-overlay {
             position: absolute;
             inset: 0;
@@ -144,7 +141,6 @@
             color: white;
             border: 1.5px solid #fca5a5;
         }
-        /* Skin Selector Modal */
         #skin-modal {
             position: absolute;
             inset: 0;
@@ -214,26 +210,10 @@
             flex-shrink: 0;
             padding: 4px;
         }
-        .mask-box svg {
-            width: 100%;
-            height: 100%;
-        }
-        .skin-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .skin-info h3 {
-            margin: 0 0 4px;
-            font-size: 0.98rem;
-            line-height: 1.25;
-            color: #f8fafc;
-        }
-        .skin-info p {
-            margin: 0;
-            font-size: 0.76rem;
-            line-height: 1.35;
-            color: #9ca3af;
-        }
+        .mask-box svg { width: 100%; height: 100%; }
+        .skin-info { flex: 1; min-width: 0; }
+        .skin-info h3 { margin: 0 0 4px; font-size: 0.98rem; line-height: 1.25; color: #f8fafc; }
+        .skin-info p { margin: 0; font-size: 0.76rem; line-height: 1.35; color: #9ca3af; }
         .skin-btn {
             padding: 10px 12px;
             border-radius: 10px;
@@ -249,7 +229,6 @@
         .skin-btn.buy { background: #eab308; color: #0f172a; }
         .skin-btn.locked { background: #334155; color: #94a3b8; }
 
-        /* Game Over Modal */
         #game-over {
             position: absolute;
             top: 50%;
@@ -267,11 +246,7 @@
             max-width: 340px;
             box-shadow: 0 0 40px rgba(239, 68, 68, 0.6);
         }
-        #game-over h2 {
-            color: #ef4444;
-            margin: 0 0 8px;
-            font-size: 1.6rem;
-        }
+        #game-over h2 { color: #ef4444; margin: 0 0 8px; font-size: 1.6rem; }
         .stats-summary {
             background: #111827;
             border-radius: 12px;
@@ -280,10 +255,7 @@
             font-size: 0.95rem;
             line-height: 1.7;
         }
-        .over-btns {
-            display: flex;
-            gap: 10px;
-        }
+        .over-btns { display: flex; gap: 10px; }
         .over-btns button {
             flex: 1;
             padding: 12px;
@@ -299,30 +271,24 @@
 </head>
 <body>
 
-    <!-- HUD -->
     <div id="hud">
         <div class="pill">SCORE: <span id="score-val" style="color:#38bdf8">0</span></div>
         <div class="pill"><span class="coin-dot"></span> <span id="coin-val">0</span></div>
     </div>
 
-    <!-- Live Cutscene Subtitle -->
     <div id="cutscene-banner">🍔 Peter spots Venom at McDonald's!</div>
 
-    <!-- Tap to Start Screen -->
     <div id="start-overlay">
         <div class="title-wrap">
             <h1>SPIDEY SURFERS</h1>
             <p>NYC Rooftop Chase</p>
         </div>
-
         <button id="tap-to-start">TAP TO START</button>
-
         <div class="bottom-controls">
             <button id="open-skins-btn" class="btn-action">🕷️ SUITS / SKINS</button>
         </div>
     </div>
 
-    <!-- Skins Wardrobe Modal -->
     <div id="skin-modal">
         <div class="modal-header">
             <h2>🕷️ SPIDER-MASKS</h2>
@@ -335,7 +301,6 @@
         <div class="skin-list" id="skin-list"></div>
     </div>
 
-    <!-- Game Over Screen -->
     <div id="game-over">
         <h2>CAUGHT BY VENOM!</h2>
         <div class="stats-summary">
@@ -352,7 +317,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        // --- CUSTOM SVG SPIDER-MAN MASK ICONS ---
         function getMaskSVG(type) {
             if (type === '2002') {
                 return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -416,46 +380,14 @@
             </svg>`;
         }
 
-        // --- SKIN DEFINITIONS ---
         const SKINS = [
-            {
-                id: '2002',
-                name: '2002 Human Spider',
-                desc: 'Default homemade red hoodie, blue pants & ski mask',
-                cost: 0,
-                colors: { torso: 0xdc2626, arms: 0xdc2626, legs: 0x1e40af, head: 0xdc2626, eyes: 0xfef2f2, accent: 0x111827 }
-            },
-            {
-                id: '2004',
-                name: '2004 Classic Suit',
-                desc: 'Crimson & deep navy suit with silver raised webbing',
-                cost: 100,
-                colors: { torso: 0xb91c1c, arms: 0xb91c1c, legs: 0x1e3a8a, head: 0xb91c1c, eyes: 0xe2e8f0, accent: 0x94a3b8 }
-            },
-            {
-                id: '2007',
-                name: '2007 Symbiote Suit',
-                desc: 'Alien black suit with metallic silver spider & eyes',
-                cost: 200,
-                colors: { torso: 0x0f172a, arms: 0x0f172a, legs: 0x090d16, head: 0x0f172a, eyes: 0xf1f5f9, accent: 0xcbd5e1 }
-            },
-            {
-                id: '2016',
-                name: '2016 Stark Tech Suit',
-                desc: 'Bright red & blue with black bands & web-shooters',
-                cost: 500,
-                colors: { torso: 0xef4444, arms: 0x2563eb, legs: 0x2563eb, head: 0xef4444, eyes: 0xffffff, accent: 0x090d16 }
-            },
-            {
-                id: '2018-2019',
-                name: '2018-2019 Iron Spider',
-                desc: 'Metallic red, navy & gold armor with glowing cyan eyes',
-                cost: 1000,
-                colors: { torso: 0x991b1b, arms: 0x991b1b, legs: 0x1e3a8a, head: 0x991b1b, eyes: 0x38bdf8, accent: 0xfbbf24, metallic: true }
-            }
+            { id: '2002', name: '2002 Human Spider', desc: 'Default homemade red hoodie, blue pants & ski mask', cost: 0, colors: { torso: 0xdc2626, arms: 0xdc2626, legs: 0x1e40af, head: 0xdc2626, eyes: 0xfef2f2, accent: 0x111827 } },
+            { id: '2004', name: '2004 Classic Suit', desc: 'Crimson & deep navy suit with silver raised webbing', cost: 100, colors: { torso: 0xb91c1c, arms: 0xb91c1c, legs: 0x1e3a8a, head: 0xb91c1c, eyes: 0xe2e8f0, accent: 0x94a3b8 } },
+            { id: '2007', name: '2007 Symbiote Suit', desc: 'Alien black suit with metallic silver spider & eyes', cost: 200, colors: { torso: 0x0f172a, arms: 0x0f172a, legs: 0x090d16, head: 0x0f172a, eyes: 0xf1f5f9, accent: 0xcbd5e1 } },
+            { id: '2016', name: '2016 Stark Tech Suit', desc: 'Bright red & blue with black bands & web-shooters', cost: 500, colors: { torso: 0xef4444, arms: 0x2563eb, legs: 0x2563eb, head: 0xef4444, eyes: 0xffffff, accent: 0x090d16 } },
+            { id: '2018-2019', name: '2018-2019 Iron Spider', desc: 'Metallic red, navy & gold armor with glowing cyan eyes', cost: 1000, colors: { torso: 0x991b1b, arms: 0x991b1b, legs: 0x1e3a8a, head: 0x991b1b, eyes: 0x38bdf8, accent: 0xfbbf24, metallic: true } }
         ];
 
-        // --- PERSISTENT SAVE DATA ---
         let savedCoins = parseFloat(localStorage.getItem('spidey_coins')) || 0;
         let unlockedSkins = JSON.parse(localStorage.getItem('spidey_unlocked')) || ['2002'];
         let equippedSkinId = localStorage.getItem('spidey_equipped') || '2002';
@@ -473,7 +405,6 @@
             document.getElementById('modal-coin-val').textContent = formatted;
         }
 
-        // --- THREE.JS GLOBALS ---
         let scene, camera, renderer;
         let spideyRig, venomRig, mcdonaldsGroup, burgerProp, suitFlashSphere, webLine;
         let obstacles = [], coins = [], envProps = [];
@@ -484,7 +415,6 @@
         let isRolling = false, rollTimer = 0;
         const gravity = -0.018;
 
-        // States: MENU (at McDonald's), CUTSCENE (Spot Venom -> Suit Up -> Leap to Roof), PLAYING, GAMEOVER
         let gameState = 'MENU';
         let cutsceneTimer = 0;
         let score = 0;
@@ -494,15 +424,14 @@
         let spawnTimer = 0;
         let venomDist = 2.6;
 
-        const STREET_Y = -9.5; // Street level below the rooftop
+        const STREET_Y = -9.5;
 
-        // --- INIT 3D WORLD ---
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x0c142c);
-            scene.fog = new THREE.FogExp2(0x0c142c, 0.015);
+            scene.fog = new THREE.FogExp2(0x0c142c, 0.012);
 
-            camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 240);
+            camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 300);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -524,11 +453,9 @@
             spideyRig = createCharacterRig(true);
             scene.add(spideyRig.group);
 
-            // Burger in Peter's Hand
             burgerProp = createBurgerProp();
             spideyRig.rightArmPivot.add(burgerProp);
 
-            // Suit-Up Energy Flash Sphere
             suitFlashSphere = new THREE.Mesh(
                 new THREE.SphereGeometry(1.4, 16, 16),
                 new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0 })
@@ -536,7 +463,6 @@
             suitFlashSphere.position.y = 1.2;
             spideyRig.group.add(suitFlashSphere);
 
-            // Web Zip Line for Leaping to Rooftop
             const webMat = new THREE.LineBasicMaterial({ color: 0xffffff });
             const webGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0)]);
             webLine = new THREE.Line(webGeo, webMat);
@@ -554,71 +480,58 @@
             window.addEventListener('resize', onResize);
         }
 
-        // --- MCDONALD'S STREET BUILDING (GROUND LEVEL) ---
         function buildMcDonaldsStreetScene() {
             mcdonaldsGroup = new THREE.Group();
 
-            // Street Asphalt & Sidewalk
             const street = new THREE.Mesh(
-                new THREE.PlaneGeometry(40, 40),
+                new THREE.PlaneGeometry(50, 50),
                 new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.9 })
             );
             street.rotation.x = -Math.PI / 2;
-            street.position.set(0, STREET_Y, 6);
+            street.position.set(0, STREET_Y, 8);
             mcdonaldsGroup.add(street);
 
-            const sidewalk = new THREE.Mesh(
-                new THREE.BoxGeometry(14, 0.25, 14),
-                new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.85 })
-            );
-            sidewalk.position.set(0, STREET_Y + 0.12, 5);
-            mcdonaldsGroup.add(sidewalk);
-
-            // McDonald's Storefront Building (Directly below front edge of rooftop)
             const storeBody = new THREE.Mesh(
-                new THREE.BoxGeometry(9.6, 8.8, 7.5),
+                new THREE.BoxGeometry(11.0, 9.2, 8.5),
                 new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.5 })
             );
-            storeBody.position.set(0, STREET_Y + 4.4, -0.5);
+            storeBody.position.set(0, STREET_Y + 4.6, -1.0);
             mcdonaldsGroup.add(storeBody);
 
-            // Yellow Roof Trim Band
             const yellowBand = new THREE.Mesh(
-                new THREE.BoxGeometry(9.8, 0.7, 7.8),
+                new THREE.BoxGeometry(11.4, 0.75, 8.8),
                 new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xca8a04, emissiveIntensity: 0.3 })
             );
-            yellowBand.position.set(0, STREET_Y + 8.6, -0.5);
+            yellowBand.position.set(0, STREET_Y + 9.0, -1.0);
             mcdonaldsGroup.add(yellowBand);
 
-            // Glowing Glass Entrance Door & Windows
             const glassMat = new THREE.MeshStandardMaterial({
                 color: 0xfef08a,
                 emissive: 0xfde047,
                 emissiveIntensity: 0.65,
                 roughness: 0.2
             });
-            const door = new THREE.Mesh(new THREE.BoxGeometry(2.2, 3.0, 0.2), glassMat);
-            door.position.set(0, STREET_Y + 1.6, 3.3);
+            const door = new THREE.Mesh(new THREE.BoxGeometry(2.4, 3.2, 0.2), glassMat);
+            door.position.set(0, STREET_Y + 1.6, 3.25);
             mcdonaldsGroup.add(door);
 
-            [-3.0, 3.0].forEach(wx => {
-                const win = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.2, 0.2), glassMat);
-                win.position.set(wx, STREET_Y + 2.0, 3.3);
+            [-3.5, 3.5].forEach(wx => {
+                const win = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.4, 0.2), glassMat);
+                win.position.set(wx, STREET_Y + 2.0, 3.25);
                 mcdonaldsGroup.add(win);
             });
 
-            // Iconic Golden Arches "M" Sign on McDonald's Front
             const archMat = new THREE.MeshStandardMaterial({
                 color: 0xfacc15,
                 emissive: 0xfacc15,
                 emissiveIntensity: 0.75
             });
-            const leftArch = new THREE.Mesh(new THREE.TorusGeometry(0.65, 0.16, 10, 20, Math.PI), archMat);
-            leftArch.position.set(-0.62, STREET_Y + 5.6, 3.45);
+            const leftArch = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.18, 10, 20, Math.PI), archMat);
+            leftArch.position.set(-0.75, STREET_Y + 5.9, 3.4);
             mcdonaldsGroup.add(leftArch);
 
-            const rightArch = new THREE.Mesh(new THREE.TorusGeometry(0.65, 0.16, 10, 20, Math.PI), archMat);
-            rightArch.position.set(0.62, STREET_Y + 5.6, 3.45);
+            const rightArch = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.18, 10, 20, Math.PI), archMat);
+            rightArch.position.set(0.75, STREET_Y + 5.9, 3.4);
             mcdonaldsGroup.add(rightArch);
 
             scene.add(mcdonaldsGroup);
@@ -643,39 +556,37 @@
             return burger;
         }
 
-        // Apply Civilian Peter Parker Look (Before Suiting Up)
         function applyPeterParkerCivilianLook() {
-            spideyRig.torsoMat.color.setHex(0x3b82f6); // Casual blue jacket
+            spideyRig.torsoMat.color.setHex(0x3b82f6);
             spideyRig.armMat.color.setHex(0x3b82f6);
-            spideyRig.limbMat.color.setHex(0x1e293b); // Dark jeans
-            spideyRig.headMat.color.setHex(0xfed7aa); // Peter's face
-            spideyRig.eyeMat.color.setHex(0x0f172a); // Normal eyes
-            spideyRig.accentMat.color.setHex(0x94a3b8); // Grey t-shirt underneath
+            spideyRig.limbMat.color.setHex(0x1e293b);
+            spideyRig.headMat.color.setHex(0xfed7aa);
+            spideyRig.eyeMat.color.setHex(0x0f172a);
+            spideyRig.accentMat.color.setHex(0x94a3b8);
             burgerProp.visible = true;
         }
 
         function setupStreetMenuPose() {
             mcdonaldsGroup.visible = true;
             applyPeterParkerCivilianLook();
-            spideyRig.group.position.set(-0.6, STREET_Y + 0.25, 4.8);
-            spideyRig.group.rotation.set(0, 0.4, 0);
+            spideyRig.group.position.set(-0.7, STREET_Y + 0.25, 4.6);
+            spideyRig.group.rotation.set(0, 0.35, 0);
             spideyRig.group.scale.set(1, 1, 1);
 
-            // Venom lurking around the corner of McDonald's
-            venomRig.group.position.set(3.8, STREET_Y + 0.25, 4.2);
-            venomRig.group.rotation.set(0, 1.3, 0);
+            venomRig.group.position.set(4.2, STREET_Y + 0.25, 3.8);
+            venomRig.group.rotation.set(0, 1.2, 0);
 
-            camera.position.set(0.5, STREET_Y + 2.6, 10.2);
-            camera.lookAt(0.4, STREET_Y + 2.2, 3.5);
+            // Widen camera and pull back so the full McDonald's scene is visible
+            camera.position.set(0, STREET_Y + 4.2, 15.5);
+            camera.lookAt(0, STREET_Y + 3.2, 3.0);
         }
 
-        // --- NYC ROOFTOP DECK & SURROUNDING SKYSCRAPERS ---
         function buildRooftopEnvironment() {
             const roofGeo = new THREE.PlaneGeometry(9.6, 300);
             const roofMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 });
             const roof = new THREE.Mesh(roofGeo, roofMat);
             roof.rotation.x = -Math.PI / 2;
-            roof.position.z = -146.5; // Starts right above McDonald's front edge
+            roof.position.z = -146.5;
             roof.receiveShadow = true;
             scene.add(roof);
 
@@ -739,7 +650,6 @@
             }
         }
 
-        // --- ARTICULATED 3D HUMANOID CHARACTER RIG ---
         function createCharacterRig(isSpiderMan) {
             const group = new THREE.Group();
 
@@ -839,7 +749,6 @@
             burgerProp.visible = false;
         }
 
-        // --- SKIN SHOP UI WITH SPIDER-MAN MASKS ---
         function renderSkinShop() {
             const list = document.getElementById('skin-list');
             list.innerHTML = '';
@@ -891,7 +800,6 @@
             renderSkinShop();
         };
 
-        // --- OBSTACLES (3D BRICK CHIMNEYS & ROOF VENTS) & HALF-VALUE COINS ---
         function spawnWave() {
             const zPos = -110;
             const pattern = Math.floor(Math.random() * 3);
@@ -994,7 +902,6 @@
             coins.push(coin);
         }
 
-        // --- CONTROLS ---
         let touchX = 0, touchY = 0;
 
         function triggerJump() {
@@ -1015,7 +922,6 @@
         }
 
         function setupControls() {
-            // Clicking TAP TO START begins the 1 -> 2 -> 3 McDonald's Cutscene!
             document.getElementById('tap-to-start').addEventListener('click', beginIntroCutscene);
             document.getElementById('restart-btn').addEventListener('click', startRooftopRun);
             document.getElementById('open-skins-btn').addEventListener('click', () => {
@@ -1060,7 +966,6 @@
             }, { passive: true });
         }
 
-        // --- TRIGGER CUTSCENE (STEPS 1, 2, 3) ---
         function beginIntroCutscene() {
             document.getElementById('start-overlay').style.display = 'none';
             const banner = document.getElementById('cutscene-banner');
@@ -1115,14 +1020,12 @@
             document.getElementById('game-over').style.display = 'block';
         }
 
-        // --- MAIN ANIMATION LOOP ---
         function animate() {
             requestAnimationFrame(animate);
 
             if (gameState === 'MENU') {
-                // Peter eating burger outside McDonald's while Venom lurks
                 runCycle += 0.05;
-                spideyRig.rightArmPivot.rotation.x = 0.9 + Math.sin(runCycle * 1.5) * 0.25; // Raising burger
+                spideyRig.rightArmPivot.rotation.x = 0.9 + Math.sin(runCycle * 1.5) * 0.25;
                 spideyRig.group.position.y = STREET_Y + 0.25 + Math.abs(Math.sin(runCycle * 0.5)) * 0.03;
                 venomRig.group.position.y = STREET_Y + 0.25 + Math.abs(Math.cos(runCycle * 0.6)) * 0.06;
             } else if (gameState === 'CUTSCENE') {
@@ -1130,14 +1033,12 @@
                 const banner = document.getElementById('cutscene-banner');
 
                 if (cutsceneTimer < 75) {
-                    // STEP 1 (0 - 1.2s): Venom lunges out & Peter drops burger in shock
                     venomRig.group.position.x += (1.1 - venomRig.group.position.x) * 0.06;
                     venomRig.group.rotation.y = 1.57;
-                    spideyRig.group.rotation.y = -1.57; // Peter turns to face Venom
+                    spideyRig.group.rotation.y = -1.57;
                     spideyRig.rightArmPivot.rotation.x = 0.2;
-                    burgerProp.position.y -= 0.06; // Burger drops!
+                    burgerProp.position.y -= 0.06;
                 } else if (cutsceneTimer < 145) {
-                    // STEP 2 (1.2s - 2.4s): Peter equips the selected Spider-Man Suit!
                     const activeSkin = SKINS.find(s => s.id === equippedSkinId) || SKINS[0];
                     banner.textContent = `🕷️ 2. Suiting Up: ${activeSkin.name}!`;
 
@@ -1147,20 +1048,18 @@
                     }
                     suitFlashSphere.material.opacity = Math.max(0, suitFlashSphere.material.opacity - 0.03);
                     suitFlashSphere.scale.setScalar(1 + (145 - cutsceneTimer) * 0.01);
-                    spideyRig.group.rotation.y += 0.14; // Hero spin during suit-up
+                    spideyRig.group.rotation.y += 0.14;
                 } else if (cutsceneTimer < 225) {
-                    // STEP 3 (2.4s - 3.7s): Web-zip up onto McDonald's / NYC Rooftop!
                     banner.textContent = "🕸️ 3. Escaping onto the Rooftop!";
-                    const progress = (cutsceneTimer - 145) / 80; // 0 to 1
+                    const progress = (cutsceneTimer - 145) / 80;
                     const ease = 1 - Math.pow(1 - progress, 3);
 
                     spideyRig.group.rotation.y = 0;
-                    spideyRig.group.position.x = -0.6 * (1 - ease);
+                    spideyRig.group.position.x = -0.7 * (1 - ease);
                     spideyRig.group.position.y = (STREET_Y + 0.25) * (1 - ease) + Math.sin(progress * Math.PI) * 2.2;
-                    spideyRig.group.position.z = 4.8 * (1 - ease);
-                    spideyRig.rightArmPivot.rotation.x = 2.6; // Web-shooting arm raised
+                    spideyRig.group.position.z = 4.6 * (1 - ease);
+                    spideyRig.rightArmPivot.rotation.x = 2.6;
 
-                    // Draw Web Line from hand to rooftop edge
                     webLine.visible = progress < 0.85;
                     const positions = webLine.geometry.attributes.position.array;
                     positions[0] = spideyRig.group.position.x + 0.4;
@@ -1171,17 +1070,15 @@
                     positions[5] = -2;
                     webLine.geometry.attributes.position.needsUpdate = true;
 
-                    // Venom leaps up right behind Spider-Man
                     venomRig.group.rotation.y = 0;
-                    venomRig.group.position.x = 1.1 * (1 - ease);
+                    venomRig.group.position.x = 1.2 * (1 - ease);
                     venomRig.group.position.y = (STREET_Y + 0.25) * (1 - ease);
-                    venomRig.group.position.z = 4.2 * (1 - ease) + 2.4 * ease;
+                    venomRig.group.position.z = 3.8 * (1 - ease) + 2.4 * ease;
 
-                    // Camera smoothly rises from street to behind-the-back rooftop angle
-                    camera.position.x = 0.5 * (1 - ease);
-                    camera.position.y = (STREET_Y + 2.6) * (1 - ease) + 4.2 * ease;
-                    camera.position.z = 10.2 * (1 - ease) + 6.8 * ease;
-                    camera.lookAt(0, (STREET_Y + 2.2) * (1 - ease) + 1.3 * ease, 3.5 * (1 - ease) - 6 * ease);
+                    camera.position.x = 0;
+                    camera.position.y = (STREET_Y + 4.2) * (1 - ease) + 4.2 * ease;
+                    camera.position.z = 15.5 * (1 - ease) + 6.8 * ease;
+                    camera.lookAt(0, (STREET_Y + 3.2) * (1 - ease) + 1.3 * ease, 3.0 * (1 - ease) - 6 * ease);
                 } else {
                     startRooftopRun();
                 }
@@ -1242,7 +1139,6 @@
                 venomRig.leftArmPivot.rotation.x = Math.sin(runCycle * 1.1) * 1.0;
                 venomRig.rightArmPivot.rotation.x = -Math.sin(runCycle * 1.1) * 1.0;
 
-                // Update Obstacles & Collision
                 for (let i = obstacles.length - 1; i >= 0; i--) {
                     const obs = obstacles[i];
                     obs.mesh.position.z += speed;
@@ -1272,7 +1168,6 @@
                     }
                 }
 
-                // Update Coins (+0.5 per pickup)
                 for (let i = coins.length - 1; i >= 0; i--) {
                     const c = coins[i];
                     c.position.z += speed;
