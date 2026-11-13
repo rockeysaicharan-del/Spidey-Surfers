@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spidey Surfers 3D</title>
+    <style>
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #090d16;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            touch-action: none;
+        }
+        /* Top HUD */
+        #hud {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .pill {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1.5px solid rgba(56, 189, 248, 0.4);
+            backdrop-filter: blur(8px);
+            padding: 8px 14px;
+            border-radius: 999px;
+            color: #fff;
+            font-weight: 800;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .coin-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fef08a, #eab308);
+            border: 1.5px solid #ca8a04;
+            display: inline-block;
+        }
+        /* Tap to Start Overlay */
+        #start-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 70px 20px 45px;
+            z-index: 20;
+            background: linear-gradient(to bottom, rgba(5,8,20,0.45) 0%, rgba(5,8,20,0.1) 45%, rgba(5,8,20,0.85) 100%);
+        }
+        .title-wrap {
+            text-align: center;
+        }
+        .title-wrap h1 {
+            margin: 0;
+            font-size: 2.7rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            font-style: italic;
+            color: #fff;
+            text-shadow: 0 4px 0 #dc2626, 0 8px 25px rgba(239, 68, 68, 0.7);
+        }
+        .title-wrap p {
+            margin: 6px 0 0;
+            color: #38bdf8;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        #tap-to-start {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.65rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 2px 15px rgba(56, 189, 248, 0.9);
+            animation: pulse 1.3s infinite ease-in-out;
+            cursor: pointer;
+            padding: 20px 40px;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.08); opacity: 0.75; }
+        }
+        .bottom-controls {
+            display: flex;
+            gap: 14px;
+            width: 100%;
+            max-width: 380px;
+        }
+        .btn-action {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+        }
+        #open-skins-btn {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+            border: 1.5px solid #fca5a5;
+        }
+        /* Skin Selector Modal */
+        #skin-modal {
+            position: absolute;
+            inset: 0;
+            background: rgba(6, 10, 22, 0.94);
+            backdrop-filter: blur(12px);
+            z-index: 40;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            color: white;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            color: #38bdf8;
+        }
+        #close-skins-btn {
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .skin-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 20px;
+        }
+        .skin-card {
+            background: #111827;
+            border: 2px solid #1f2937;
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .skin-card.equipped {
+            border-color: #38bdf8;
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+        }
+        .swatch {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .skin-info {
+            flex: 1;
+        }
+        .skin-info h3 {
+            margin: 0 0 4px;
+            font-size: 1rem;
+        }
+        .skin-info p {
+            margin: 0;
+            font-size: 0.78rem;
+            color: #9ca3af;
+        }
+        .skin-btn {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            min-width: 92px;
+        }
+        .skin-btn.equip { background: #10b981; color: #fff; }
+        .skin-btn.equipped-tag { background: #38bdf8; color: #0f172a; }
+        .skin-btn.buy { background: #eab308; color: #0f172a; }
+        .skin-btn.locked { background: #334155; color: #94a3b8; }
+
+        /* Game Over Modal */
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(11, 15, 25, 0.96);
+            border: 2px solid #ef4444;
+            padding: 28px 24px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            display: none;
+            z-index: 35;
+            width: 85%;
+            max-width: 340px;
+            box-shadow: 0 0 40px rgba(239, 68, 68, 0.6);
+        }
+        #game-over h2 {
+            color: #ef4444;
+            margin: 0 0 8px;
+            font-size: 1.6rem;
+        }
+        .stats-summary {
+            background: #111827;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 14px 0 20px;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        .over-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .over-btns button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        #restart-btn { background: #10b981; color: white; }
+        #home-btn { background: #334155; color: white; }
+    </style>
+</head>
+<body>
+
+    <!-- HUD -->
+    <div id="hud">
+        <div class="pill">SCORE: <span id="score-val" style="color:#38bdf8">0</span></div>
+        <div class="pill"><span class="coin-dot"></span> <span id="coin-val">0</span></div>
+    </div>
+
+    <!-- Tap to Start Screen -->
+    <div id="start-overlay">
+        <div class="title-wrap">
+            <h1>SPIDEY SURFERS</h1>
+            <p>NYC Subway Escape</p>
+        </div>
+
+        <button id="tap-to-start">TAP TO START</button>
+
+        <div class="bottom-controls">
+            <button id="open-skins-btn" class="btn-action">🕷️ SUITS / SKINS</button>
+        </div>
+    </div>
+
+    <!-- Skins Wardrobe Modal -->
+    <div id="skin-modal">
+        <div class="modal-header">
+            <h2>🕷️ SPIDER-SUITS</h2>
+            <div class="pill"><span class="coin-dot"></span> <span id="modal-coin-val">0</span></div>
+            <button id="close-skins-btn">DONE</button>
+        </div>
+        <p style="font-size:0.8rem; color:#94a3b8; margin:0 0 12px;">
+            1 Pickup Coin = 0.5 Value (Collect 2 coins = 1 Full Coin)
+        </p>
+        <div class="skin-list" id="skin-list"></div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over">
+        <h2>CAUGHT BY VENOM!</h2>
+        <div class="stats-summary">
+            <div>Run Score: <strong id="final-score" style="color:#38bdf8">0</strong></div>
+            <div>Run Coins (+0.5 each): <strong id="run-coins" style="color:#facc15">0</strong></div>
+            <div>Total Bank: <strong id="total-bank" style="color:#10b981">0</strong></div>
+        </div>
+        <div class="over-btns">
+            <button id="home-btn">SUITS</button>
+            <button id="restart-btn">RUN AGAIN</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // --- SKIN DEFINITIONS (Matching User's Reference Image) ---
+        const SKINS = [
+            {
+                id: '2002',
+                name: '2002 Human Spider',
+                desc: 'Default homemade red hoodie, blue pants & ski mask',
+                cost: 0,
+                swatch: 'linear-gradient(135deg, #ef4444 60%, #1d4ed8 60%)',
+                colors: {
+                    torso: 0xdc2626,
+                    arms: 0xdc2626,
+                    legs: 0x1e40af,
+                    head: 0xdc2626,
+                    eyes: 0xfef2f2,
+                    accent: 0x111827, // Black spider emblem
+                    webbing: false
+                }
+            },
+            {
+                id: '2004',
+                name: '2004 Classic Suit',
+                desc: 'Crimson & deep navy suit with silver raised webbing',
+                cost: 100,
+                swatch: 'linear-gradient(135deg, #b91c1c 55%, #1e3a8a 55%)',
+                colors: {
+                    torso: 0xb91c1c,
+                    arms: 0xb91c1c,
+                    legs: 0x1e3a8a,
+                    head: 0xb91c1c,
+                    eyes: 0xe2e8f0,
+                    accent: 0x94a3b8, // Silver webbing
+                    webbing: true
+                }
+            },
+            {
+                id: '2007',
+                name: '2007 Symbiote Suit',
+                desc: 'Alien black suit with metallic silver spider & eyes',
+                cost: 200,
+                swatch: 'linear-gradient(135deg, #090d16 65%, #64748b 65%)',
+                colors: {
+                    torso: 0x0f172a,
+                    arms: 0x0f172a,
+                    legs: 0x090d16,
+                    head: 0x0f172a,
+                    eyes: 0xf1f5f9,
+                    accent: 0xcbd5e1, // Silver emblem
+                    webbing: true
+                }
+            },
+            {
+                id: '2016',
+                name: '2016 Stark Tech Suit',
+                desc: 'Bright red & blue with black bands & web-shooters',
+                cost: 500,
+                swatch: 'linear-gradient(135deg, #ef4444 50%, #2563eb 50%)',
+                colors: {
+                    torso: 0xef4444,
+                    arms: 0x2563eb,
+                    legs: 0x2563eb,
+                    head: 0xef4444,
+                    eyes: 0xffffff,
+                    accent: 0x090d16, // Black shoulder/wrist bands
+                    webbing: false
+                }
+            },
+            {
+                id: '2018-2019',
+                name: '2018-2019 Iron Spider',
+                desc: 'Metallic red, navy & gold armor with glowing cyan eyes',
+                cost: 1000,
+                swatch: 'linear-gradient(135deg, #991b1b 45%, #f59e0b 50%, #1e3a8a 55%)',
+                colors: {
+                    torso: 0x991b1b,
+                    arms: 0x991b1b,
+                    legs: 0x1e3a8a,
+                    head: 0x991b1b,
+                    eyes: 0x38bdf8, // Glowing cyan lenses
+                    accent: 0xfbbf24, // Gold armor trim
+                    webbing: false,
+                    metallic: true
+                }
+            }
+        ];
+
+        // --- PERSISTENT SAVE DATA ---
+        let savedCoins = parseFloat(localStorage.getItem('spidey_coins')) || 0;
+        let unlockedSkins = JSON.parse(localStorage.getItem('spidey_unlocked')) || ['2002'];
+        let equippedSkinId = localStorage.getItem('spidey_equipped') || '2002';
+
+        function saveProgress() {
+            localStorage.setItem('spidey_coins', savedCoins.toString());
+            localStorage.setItem('spidey_unlocked', JSON.stringify(unlockedSkins));
+            localStorage.setItem('spidey_equipped', equippedSkinId);
+            updateCoinDisplays();
+        }
+
+        function updateCoinDisplays() {
+            const formatted = Number.isInteger(savedCoins) ? savedCoins : savedCoins.toFixed(1);
+            document.getElementById('coin-val').textContent = formatted;
+            document.getElementById('modal-coin-val').textContent = formatted;
+        }
+
+        // --- THREE.JS GLOBALS ---
+        let scene, camera, renderer;
+        let spideyRig, venomRig;
+        let obstacles = [], coins = [], envProps = [];
+        let lane = 1;
+        const laneX = [-2.6, 0, 2.6];
+
+        let isJumping = false, jumpVel = 0;
+        let isRolling = false, rollTimer = 0;
+        const gravity = -0.018;
+
+        let gameState = 'MENU'; // MENU, PLAYING, GAMEOVER
+        let score = 0;
+        let runCoinsEarned = 0;
+        let speed = 0.36;
+        let runCycle = 0;
+        let spawnTimer = 0;
+        let venomDist = 2.6;
+
+        // --- INIT 3D WORLD ---
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0b132b);
+            scene.fog = new THREE.FogExp2(0x0b132b, 0.018);
+
+            camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 200);
+            camera.position.set(0, 4.2, 6.8);
+            camera.lookAt(0, 1.3, -6);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+
+            // Realistic Three-Point / City Lighting
+            const hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x1e293b, 0.9);
+            scene.add(hemiLight);
+
+            const dirLight = new THREE.DirectionalLight(0xfffbeb, 1.1);
+            dirLight.position.set(8, 18, 10);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            buildSubwayEnvironment();
+
+            spideyRig = createCharacterRig(true);
+            spideyRig.group.position.set(0, 0, 0);
+            scene.add(spideyRig.group);
+            applySkinToSpidey(equippedSkinId);
+
+            venomRig = createCharacterRig(false);
+            venomRig.group.position.set(0, 0, venomDist);
+            venomRig.group.scale.set(1.32, 1.28, 1.32);
+            scene.add(venomRig.group);
+
+            setupControls();
+            renderSkinShop();
+            updateCoinDisplays();
+            window.addEventListener('resize', onResize);
+        }
+
+        // --- REALISTIC SUBWAY TRACKS & NYC BUILDINGS ---
+        function buildSubwayEnvironment() {
+            // Gravel Track Bed
+            const bedGeo = new THREE.PlaneGeometry(11, 300);
+            const bedMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.95 });
+            const bed = new THREE.Mesh(bedGeo, bedMat);
+            bed.rotation.x = -Math.PI / 2;
+            bed.position.z = -120;
+            bed.receiveShadow = true;
+            scene.add(bed);
+
+            // Side Concrete Platforms
+            const platGeo = new THREE.BoxGeometry(4, 1.2, 300);
+            const platMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85 });
+            const leftPlat = new THREE.Mesh(platGeo, platMat);
+            leftPlat.position.set(-7.5, 0.6, -120);
+            scene.add(leftPlat);
+
+            const rightPlat = new THREE.Mesh(platGeo, platMat);
+            rightPlat.position.set(7.5, 0.6, -120);
+            scene.add(rightPlat);
+
+            // Steel Rails for 3 Lanes
+            const railMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.25 });
+            laneX.forEach(lx => {
+                [-0.65, 0.65].forEach(offset => {
+                    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.14, 300), railMat);
+                    rail.position.set(lx + offset, 0.07, -120);
+                    scene.add(rail);
+                });
+            });
+
+            // Scrolling Wooden Ties & City Buildings
+            const tieMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 });
+            for (let z = 15; z > -220; z -= 2.2) {
+                const tieGroup = new THREE.Group();
+                laneX.forEach(lx => {
+                    const tie = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.06, 0.35), tieMat);
+                    tie.position.set(lx, 0.03, 0);
+                    tieGroup.add(tie);
+                });
+                tieGroup.position.z = z;
+                scene.add(tieGroup);
+                envProps.push({ mesh: tieGroup, resetZ: -220 });
+            }
+
+            // NYC Buildings along sides
+            const bColors = [0x0f172a, 0x1e1b4b, 0x172554, 0x1e293b];
+            for (let z = 10; z > -220; z -= 14) {
+                [-11.5, 11.5].forEach(bx => {
+                    const h = 14 + Math.random() * 18;
+                    const bGeo = new THREE.BoxGeometry(7, h, 11);
+                    const bMat = new THREE.MeshStandardMaterial({
+                        color: bColors[Math.floor(Math.random() * bColors.length)],
+                        roughness: 0.7
+                    });
+                    const bldg = new THREE.Mesh(bGeo, bMat);
+                    bldg.position.set(bx, h / 2, z);
+                    scene.add(bldg);
+                    envProps.push({ mesh: bldg, resetZ: -220 });
+                });
+            }
+        }
+
+        // --- ARTICULATED 3D HUMANOID CHARACTER RIG ---
+        function createCharacterRig(isSpiderMan) {
+            const group = new THREE.Group();
+
+            const torsoMat = new THREE.MeshStandardMaterial({ color: isSpiderMan ? 0xdc2626 : 0x090d16, roughness: 0.4 });
+            const limbMat = new THREE.MeshStandardMaterial({ color: isSpiderMan ? 0x1e40af : 0x090d16, roughness: 0.4 });
+            const armMat = new THREE.MeshStandardMaterial({ color: isSpiderMan ? 0xdc2626 : 0x090d16, roughness: 0.4 });
+            const headMat = new THREE.MeshStandardMaterial({ color: isSpiderMan ? 0xdc2626 : 0x090d16, roughness: 0.35 });
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const accentMat = new THREE.MeshStandardMaterial({ color: 0x111827, metalness: 0.5, roughness: 0.3 });
+
+            // Torso
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.95, 0.42), torsoMat);
+            torso.position.y = 1.25;
+            torso.castShadow = true;
+            group.add(torso);
+
+            // Chest Emblem / Gold Armor Plate
+            const emblem = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.45), accentMat);
+            emblem.position.set(0, 1.32, 0);
+            group.add(emblem);
+
+            // Head
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.55, 0.52), headMat);
+            head.position.y = 2.02;
+            head.castShadow = true;
+            group.add(head);
+
+            // Eyes (Facing forward -Z)
+            const leftEye = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.1, 0.05), eyeMat);
+            leftEye.position.set(-0.13, 2.04, -0.26);
+            leftEye.rotation.z = 0.25;
+            group.add(leftEye);
+
+            const rightEye = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.1, 0.05), eyeMat);
+            rightEye.position.set(0.13, 2.04, -0.26);
+            rightEye.rotation.z = -0.25;
+            group.add(rightEye);
+
+            // Venom White Tendrils & Jaw
+            if (!isSpiderMan) {
+                const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.16, 0.54), new THREE.MeshBasicMaterial({ color: 0xf8fafc }));
+                jaw.position.set(0, 1.85, -0.02);
+                group.add(jaw);
+            }
+
+            // Articulated Pivots for Arms & Legs
+            const leftArmPivot = new THREE.Group();
+            leftArmPivot.position.set(-0.52, 1.65, 0);
+            const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.8, 0.24), armMat);
+            leftArm.position.y = -0.35;
+            leftArmPivot.add(leftArm);
+            group.add(leftArmPivot);
+
+            const rightArmPivot = new THREE.Group();
+            rightArmPivot.position.set(0.52, 1.65, 0);
+            const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.8, 0.24), armMat);
+            rightArm.position.y = -0.35;
+            rightArmPivot.add(rightArm);
+            group.add(rightArmPivot);
+
+            const leftLegPivot = new THREE.Group();
+            leftLegPivot.position.set(-0.2, 0.8, 0);
+            const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.8, 0.28), limbMat);
+            leftLeg.position.y = -0.4;
+            leftLegPivot.add(leftLeg);
+            group.add(leftLegPivot);
+
+            const rightLegPivot = new THREE.Group();
+            rightLegPivot.position.set(0.2, 0.8, 0);
+            const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.8, 0.28), limbMat);
+            rightLeg.position.y = -0.4;
+            rightLegPivot.add(rightLeg);
+            group.add(rightLegPivot);
+
+            return {
+                group, torso, head, emblem,
+                torsoMat, limbMat, armMat, headMat, eyeMat, accentMat,
+                leftArmPivot, rightArmPivot, leftLegPivot, rightLegPivot
+            };
+        }
+
+        function applySkinToSpidey(skinId) {
+            const skin = SKINS.find(s => s.id === skinId) || SKINS[0];
+            const c = skin.colors;
+            const metal = c.metallic ? 0.65 : 0.1;
+            const rough = c.metallic ? 0.25 : 0.45;
+
+            spideyRig.torsoMat.color.setHex(c.torso);
+            spideyRig.torsoMat.metalness = metal;
+            spideyRig.torsoMat.roughness = rough;
+
+            spideyRig.armMat.color.setHex(c.arms);
+            spideyRig.armMat.metalness = metal;
+
+            spideyRig.limbMat.color.setHex(c.legs);
+            spideyRig.limbMat.metalness = metal;
+
+            spideyRig.headMat.color.setHex(c.head);
+            spideyRig.headMat.metalness = metal;
+
+            spideyRig.eyeMat.color.setHex(c.eyes);
+            spideyRig.accentMat.color.setHex(c.accent);
+        }
+
+        // --- SKIN SHOP UI ---
+        function renderSkinShop() {
+            const list = document.getElementById('skin-list');
+            list.innerHTML = '';
+
+            SKINS.forEach(skin => {
+                const isUnlocked = unlockedSkins.includes(skin.id);
+                const isEquipped = equippedSkinId === skin.id;
+
+                const card = document.createElement('div');
+                card.className = `skin-card ${isEquipped ? 'equipped' : ''}`;
+
+                let btnHtml = '';
+                if (isEquipped) {
+                    btnHtml = `<button class="skin-btn equipped-tag">EQUIPPED</button>`;
+                } else if (isUnlocked) {
+                    btnHtml = `<button class="skin-btn equip" onclick="selectSkin('${skin.id}')">EQUIP</button>`;
+                } else if (savedCoins >= skin.cost) {
+                    btnHtml = `<button class="skin-btn buy" onclick="buySkin('${skin.id}')">🪙 ${skin.cost}</button>`;
+                } else {
+                    btnHtml = `<button class="skin-btn locked">🔒 ${skin.cost}</button>`;
+                }
+
+                card.innerHTML = `
+                    <div class="swatch" style="background:${skin.swatch}"></div>
+                    <div class="skin-info">
+                        <h3>${skin.name}</h3>
+                        <p>${skin.desc}</p>
+                    </div>
+                    ${btnHtml}
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        window.buySkin = function(skinId) {
+            const skin = SKINS.find(s => s.id === skinId);
+            if (!skin || savedCoins < skin.cost) return;
+            savedCoins -= skin.cost;
+            unlockedSkins.push(skin.id);
+            equippedSkinId = skin.id;
+            applySkinToSpidey(skin.id);
+            saveProgress();
+            renderSkinShop();
+        };
+
+        window.selectSkin = function(skinId) {
+            if (!unlockedSkins.includes(skinId)) return;
+            equippedSkinId = skinId;
+            applySkinToSpidey(skinId);
+            saveProgress();
+            renderSkinShop();
+        };
+
+        // --- OBSTACLES & COINS (SUBWAY TRAINS, BARRIERS, HALF-VALUE COINS) ---
+        function spawnWave() {
+            const zPos = -110;
+            const pattern = Math.floor(Math.random() * 3);
+            const openLane = Math.floor(Math.random() * 3);
+
+            for (let l = 0; l < 3; l++) {
+                if (l === openLane) {
+                    // Line of 4 Gold Coins in safe lane (each worth 0.5)
+                    for (let c = 0; c < 4; c++) {
+                        spawnCoin(laneX[l], 0.85, zPos - c * 2.6);
+                    }
+                } else if (pattern === 0) {
+                    // Full Subway Train Car
+                    spawnTrain(laneX[l], zPos);
+                } else if (pattern === 1) {
+                    // Low Hurdle Barrier (Jump over)
+                    spawnBarrier(laneX[l], zPos, false);
+                } else {
+                    // High Overhead Barrier (Slide/Roll under)
+                    spawnBarrier(laneX[l], zPos, true);
+                }
+            }
+        }
+
+        function spawnTrain(x, z) {
+            const trainGroup = new THREE.Group();
+            const body = new THREE.Mesh(
+                new THREE.BoxGeometry(2.0, 2.7, 11),
+                new THREE.MeshStandardMaterial({ color: 0x1d4ed8, metalness: 0.4, roughness: 0.3 })
+            );
+            body.position.y = 1.35;
+            trainGroup.add(body);
+
+            const stripe = new THREE.Mesh(
+                new THREE.BoxGeometry(2.04, 0.35, 11.04),
+                new THREE.MeshBasicMaterial({ color: 0xfacc15 })
+            );
+            stripe.position.y = 1.4;
+            trainGroup.add(stripe);
+
+            const windshield = new THREE.Mesh(
+                new THREE.BoxGeometry(1.7, 0.8, 0.1),
+                new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+            );
+            windshield.position.set(0, 1.9, 5.51);
+            trainGroup.add(windshield);
+
+            trainGroup.position.set(x, 0, z);
+            scene.add(trainGroup);
+            obstacles.push({ mesh: trainGroup, type: 'TRAIN', halfZ: 5.5 });
+        }
+
+        function spawnBarrier(x, z, isHigh) {
+            const barrierGroup = new THREE.Group();
+            const barMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
+            const postMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.6 });
+
+            const leftPost = new THREE.Mesh(new THREE.BoxGeometry(0.15, isHigh ? 2.6 : 1.1, 0.15), postMat);
+            leftPost.position.set(-0.85, isHigh ? 1.3 : 0.55, 0);
+            barrierGroup.add(leftPost);
+
+            const rightPost = new THREE.Mesh(new THREE.BoxGeometry(0.15, isHigh ? 2.6 : 1.1, 0.15), postMat);
+            rightPost.position.set(0.85, isHigh ? 1.3 : 0.55, 0);
+            barrierGroup.add(rightPost);
+
+            const board = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.55, 0.2), barMat);
+            board.position.set(0, isHigh ? 2.05 : 0.75, 0);
+            barrierGroup.add(board);
+
+            barrierGroup.position.set(x, 0, z);
+            scene.add(barrierGroup);
+            obstacles.push({ mesh: barrierGroup, type: isHigh ? 'HIGH' : 'LOW', halfZ: 0.4 });
+        }
+
+        function spawnCoin(x, y, z) {
+            const geo = new THREE.CylinderGeometry(0.42, 0.42, 0.12, 20);
+            const mat = new THREE.MeshStandardMaterial({
+                color: 0xfacc15,
+                emissive: 0xca8a04,
+                emissiveIntensity: 0.35,
+                metalness: 0.8,
+                roughness: 0.2
+            });
+            const coin = new THREE.Mesh(geo, mat);
+            coin.rotation.x = Math.PI / 2;
+            coin.position.set(x, y, z);
+            scene.add(coin);
+            coins.push(coin);
+        }
+
+        // --- CONTROLS (SWIPE & KEYBOARD) ---
+        let touchX = 0, touchY = 0;
+
+        function triggerJump() {
+            if (!isJumping) {
+                isJumping = true;
+                isRolling = false;
+                spideyRig.group.scale.y = 1;
+                jumpVel = 0.34;
+            }
+        }
+
+        function triggerRoll() {
+            if (!isRolling) {
+                isRolling = true;
+                rollTimer = 34;
+                if (isJumping) jumpVel = -0.35; // Fast slam down
+            }
+        }
+
+        function setupControls() {
+            document.getElementById('tap-to-start').addEventListener('click', startGame);
+            document.getElementById('restart-btn').addEventListener('click', startGame);
+            document.getElementById('open-skins-btn').addEventListener('click', () => {
+                renderSkinShop();
+                document.getElementById('skin-modal').style.display = 'flex';
+            });
+            document.getElementById('close-skins-btn').addEventListener('click', () => {
+                document.getElementById('skin-modal').style.display = 'none';
+            });
+            document.getElementById('home-btn').addEventListener('click', () => {
+                document.getElementById('game-over').style.display = 'none';
+                document.getElementById('start-overlay').style.display = 'flex';
+                gameState = 'MENU';
+                spideyRig.group.position.set(0, 0, 0);
+                venomRig.group.position.set(0, 0, 2.6);
+            });
+
+            window.addEventListener('keydown', e => {
+                if (gameState !== 'PLAYING') return;
+                if ((e.key === 'ArrowLeft' || e.key === 'a') && lane > 0) lane--;
+                if ((e.key === 'ArrowRight' || e.key === 'd') && lane < 2) lane++;
+                if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') triggerJump();
+                if (e.key === 'ArrowDown' || e.key === 's') triggerRoll();
+            });
+
+            window.addEventListener('touchstart', e => {
+                touchX = e.touches[0].clientX;
+                touchY = e.touches[0].clientY;
+            }, { passive: true });
+
+            window.addEventListener('touchend', e => {
+                if (gameState !== 'PLAYING') return;
+                const dx = e.changedTouches[0].clientX - touchX;
+                const dy = e.changedTouches[0].clientY - touchY;
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    if (dx > 35 && lane < 2) lane++;
+                    else if (dx < -35 && lane > 0) lane--;
+                } else {
+                    if (dy < -35) triggerJump();
+                    else if (dy > 35) triggerRoll();
+                }
+            }, { passive: true });
+        }
+
+        function startGame() {
+            document.getElementById('start-overlay').style.display = 'none';
+            document.getElementById('game-over').style.display = 'none';
+
+            obstacles.forEach(o => scene.remove(o.mesh));
+            coins.forEach(c => scene.remove(c));
+            obstacles = [];
+            coins = [];
+
+            lane = 1;
+            score = 0;
+            runCoinsEarned = 0;
+            speed = 0.38;
+            venomDist = 2.4;
+            isJumping = false;
+            isRolling = false;
+            spideyRig.group.position.set(0, 0, 0);
+            spideyRig.group.scale.set(1, 1, 1);
+            gameState = 'PLAYING';
+        }
+
+        function handleCrash() {
+            gameState = 'GAMEOVER';
+            venomRig.group.position.x = spideyRig.group.position.x;
+            venomRig.group.position.z = 0.75; // Venom catches Spidey
+
+            savedCoins += runCoinsEarned;
+            saveProgress();
+
+            document.getElementById('final-score').textContent = Math.floor(score);
+            document.getElementById('run-coins').textContent = Number.isInteger(runCoinsEarned) ? runCoinsEarned : runCoinsEarned.toFixed(1);
+            document.getElementById('total-bank').textContent = Number.isInteger(savedCoins) ? savedCoins : savedCoins.toFixed(1);
+            document.getElementById('game-over').style.display = 'block';
+        }
+
+        // --- MAIN ANIMATION LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (gameState === 'MENU') {
+                // Idle showcase breathing & Venom pacing behind
+                runCycle += 0.05;
+                spideyRig.group.position.y = Math.abs(Math.sin(runCycle)) * 0.06;
+                venomRig.group.position.y = Math.abs(Math.cos(runCycle)) * 0.08;
+                camera.position.set(0, 3.6, 5.8);
+                camera.lookAt(0, 1.3, -2);
+            } else if (gameState === 'PLAYING') {
+                speed += 0.00008;
+                score += speed * 2.5;
+                document.getElementById('score-val').textContent = Math.floor(score);
+
+                // Scroll Environment Props
+                envProps.forEach(p => {
+                    p.mesh.position.z += speed;
+                    if (p.mesh.position.z > 20) p.mesh.position.z = p.resetZ;
+                });
+
+                // Spawn Obstacles & Coins
+                spawnTimer += speed;
+                if (spawnTimer > 24) {
+                    spawnWave();
+                    spawnTimer = 0;
+                }
+
+                // Player Lane & Vertical Physics
+                const targetX = laneX[lane];
+                spideyRig.group.position.x += (targetX - spideyRig.group.position.x) * 0.22;
+
+                if (isJumping) {
+                    spideyRig.group.position.y += jumpVel;
+                    jumpVel += gravity;
+                    spideyRig.group.rotation.x -= 0.16; // Front flip during jump
+                    if (spideyRig.group.position.y <= 0) {
+                        spideyRig.group.position.y = 0;
+                        spideyRig.group.rotation.x = 0;
+                        isJumping = false;
+                    }
+                } else {
+                    spideyRig.group.rotation.x = 0;
+                }
+
+                if (isRolling) {
+                    rollTimer--;
+                    spideyRig.group.scale.y = 0.48;
+                    if (rollTimer <= 0) {
+                        isRolling = false;
+                        spideyRig.group.scale.y = 1;
+                    }
+                }
+
+                // Running Limb Animation
+                runCycle += speed * 0.85;
+                if (!isJumping) {
+                    spideyRig.leftLegPivot.rotation.x = Math.sin(runCycle) * 0.95;
+                    spideyRig.rightLegPivot.rotation.x = -Math.sin(runCycle) * 0.95;
+                    spideyRig.leftArmPivot.rotation.x = -Math.sin(runCycle) * 0.95;
+                    spideyRig.rightArmPivot.rotation.x = Math.sin(runCycle) * 0.95;
+                }
+
+                // Venom Chase Animation (Slowly drops back slightly as you survive, stays visible)
+                venomDist = Math.min(3.8, venomDist + 0.002);
+                venomRig.group.position.z = venomDist;
+                venomRig.group.position.x += (spideyRig.group.position.x - venomRig.group.position.x) * 0.14;
+                venomRig.leftLegPivot.rotation.x = -Math.sin(runCycle * 1.1) * 1.0;
+                venomRig.rightLegPivot.rotation.x = Math.sin(runCycle * 1.1) * 1.0;
+                venomRig.leftArmPivot.rotation.x = Math.sin(runCycle * 1.1) * 1.0;
+                venomRig.rightArmPivot.rotation.x = -Math.sin(runCycle * 1.1) * 1.0;
+
+                // Update Obstacles & Collision
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    const obs = obstacles[i];
+                    obs.mesh.position.z += speed;
+
+                    const dx = Math.abs(spideyRig.group.position.x - obs.mesh.position.x);
+                    const dz = Math.abs(spideyRig.group.position.z - obs.mesh.position.z);
+                    const py = spideyRig.group.position.y;
+
+                    if (dx < 0.85 && dz < obs.halfZ + 0.25) {
+                        if (obs.type === 'TRAIN' && py < 2.5) {
+                            handleCrash();
+                        } else if (obs.type === 'LOW' && py < 1.05) {
+                            handleCrash();
+                        } else if (obs.type === 'HIGH' && !isRolling && py < 1.8) {
+                            handleCrash();
+                        }
+                    }
+
+                    if (obs.mesh.position.z > 15) {
+                        scene.remove(obs.mesh);
+                        obstacles.splice(i, 1);
+                    }
+                }
+
+                // Update Coins (+0.5 per pickup -> 2 coins = 1.0)
+                for (let i = coins.length - 1; i >= 0; i--) {
+                    const c = coins[i];
+                    c.position.z += speed;
+                    c.rotation.z += 0.08;
+
+                    const dx = Math.abs(spideyRig.group.position.x - c.position.x);
+                    const dz = Math.abs(spideyRig.group.position.z - c.position.z);
+                    const dy = Math.abs((spideyRig.group.position.y + 0.9) - c.position.y);
+
+                    if (dx < 0.9 && dz < 0.9 && dy < 1.2) {
+                        runCoinsEarned += 0.5;
+                        const liveTotal = savedCoins + runCoinsEarned;
+                        document.getElementById('coin-val').textContent = Number.isInteger(liveTotal) ? liveTotal : liveTotal.toFixed(1);
+                        scene.remove(c);
+                        coins.splice(i, 1);
+                    } else if (c.position.z > 12) {
+                        scene.remove(c);
+                        coins.splice(i, 1);
+                    }
+                }
+
+                // Dynamic Follow Camera
+                camera.position.x += (spideyRig.group.position.x * 0.45 - camera.position.x) * 0.1;
+                camera.position.y += ((4.3 + spideyRig.group.position.y * 0.4) - camera.position.y) * 0.1;
+                camera.lookAt(spideyRig.group.position.x * 0.3, 1.3, -6);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>
