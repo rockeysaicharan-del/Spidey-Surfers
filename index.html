@@ -908,6 +908,8 @@
                 isJumping = true;
                 isRolling = false;
                 spideyRig.group.scale.y = 1;
+                spideyRig.group.position.y = 0;
+                spideyRig.group.rotation.x = 0;
                 jumpVel = 0.34;
             }
         }
@@ -915,7 +917,7 @@
         function triggerRoll() {
             if (!isRolling) {
                 isRolling = true;
-                rollTimer = 34;
+                rollTimer = 38;
                 if (isJumping) jumpVel = -0.35;
             }
         }
@@ -1109,21 +1111,26 @@
                         spideyRig.group.rotation.x = 0;
                         isJumping = false;
                     }
-                } else {
+                } else if (!isRolling) {
                     spideyRig.group.rotation.x = 0;
                 }
 
                 if (isRolling) {
                     rollTimer--;
-                    spideyRig.group.scale.y = 0.48;
+                    spideyRig.group.scale.y = 0.42;
+                    spideyRig.group.position.y = 0.25;
+                    spideyRig.group.rotation.x = 0.65; // Temple Run / Subway Surfers style slide lean
+                    
                     if (rollTimer <= 0) {
                         isRolling = false;
                         spideyRig.group.scale.y = 1;
+                        spideyRig.group.position.y = 0;
+                        spideyRig.group.rotation.x = 0;
                     }
                 }
 
                 runCycle += speed * 0.85;
-                if (!isJumping) {
+                if (!isJumping && !isRolling) {
                     spideyRig.leftLegPivot.rotation.x = Math.sin(runCycle) * 0.95;
                     spideyRig.rightLegPivot.rotation.x = -Math.sin(runCycle) * 0.95;
                     spideyRig.leftArmPivot.rotation.x = -Math.sin(runCycle) * 0.95;
